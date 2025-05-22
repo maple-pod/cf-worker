@@ -1,6 +1,6 @@
-import Hashids from 'hashids'
+import Hashids from "hashids";
 
-const MAGIC_STRING = 'maple-pod-8964-taiwan-no-1';
+const MAGIC_STRING = "maple-pod-8964-taiwan-no-1";
 const hashids = new Hashids(MAGIC_STRING, 8);
 
 export default {
@@ -12,7 +12,10 @@ export default {
     // Handle CORS preflight request, only allowed 'maple-pod.deviltea.me
     if (request.method === "OPTIONS") {
       const headers = new Headers();
-      headers.set("Access-Control-Allow-Origin", "https://maple-pod.deviltea.me");
+      headers.set(
+        "Access-Control-Allow-Origin",
+        "https://maple-pod.deviltea.me"
+      );
       headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
       headers.set("Access-Control-Allow-Headers", "Content-Type");
       return new Response(null, { status: 204, headers });
@@ -20,28 +23,27 @@ export default {
 
     // Handle "GET /api/records/:recordId" request
     if (request.method === "GET") {
-      const matched = request.url.match(/\/api\/records\/([a-zA-Z0-9]+)$/)
+      const matched = request.url.match(/\/api\/records\/([a-zA-Z0-9]+)$/);
       const recordId = matched?.[1];
 
       if (recordId == null) {
-        console.log('recordId is null', request.url);
-        return new Response('Why are you here?', { status: 404 });
+        return new Response(null, { status: 404 });
       }
 
       const rowId = hashids.decode(recordId)[0];
 
       if (rowId == null) {
-        console.log('rowId is null', recordId);
-        return new Response('Why are you here???', { status: 404 });
+        return new Response(null, { status: 404 });
       }
 
       const result = await env.DB.prepare(
         "SELECT value FROM mapping_records WHERE id = ?"
-      ).bind([Number(rowId)]).first();
+      )
+        .bind(rowId)
+        .first();
 
       if (result == null) {
-        console.log('result is null', rowId);
-        return new Response('Why are you here????', { status: 404 });
+        return new Response(null, { status: 404 });
       }
 
       return new Response(JSON.stringify(result), {
@@ -60,19 +62,22 @@ export default {
         return new Response(null, { status: 400 });
       }
 
-      let rowId: number
+      let rowId: number;
 
       const updateResult = await env.DB.prepare(
         "UPDATE mapping_records SET createdAt = strftime('%s','now') WHERE value = ? RETURNING id"
-      ).bind([value]).first();
+      )
+        .bind(value)
+        .first();
 
       if (updateResult != null) {
         rowId = updateResult.id as number;
-      }
-      else {
+      } else {
         const insertResult = await env.DB.prepare(
           "INSERT INTO mapping_records (value) VALUES (?) RETURNING id"
-        ).bind([value]).first();
+        )
+          .bind(value)
+          .first();
 
         if (insertResult == null) {
           return new Response(null, { status: 500 });
@@ -90,7 +95,7 @@ export default {
       });
     }
 
-    return new Response('Why are you here??', { status: 404 });
+    return new Response(null, { status: 404 });
   },
 
   async scheduled(_, env) {
@@ -99,11 +104,11 @@ export default {
       "DELETE FROM my_table WHERE createdAt < ?"
     ).bind([sevenDaysAgo]);
 
-   try {
+    try {
       await stmt.run();
       console.log("Old records deleted");
     } catch (err) {
       console.error("Error deleting old records:", err);
     }
-  }
+  },
 } satisfies ExportedHandler<Env>;
