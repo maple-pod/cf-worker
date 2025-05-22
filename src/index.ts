@@ -24,13 +24,13 @@ export default {
       const recordId = matched?.[1];
 
       if (recordId == null) {
-        return new Response(null, { status: 404 });
+        return new Response('Why are you here?', { status: 404 });
       }
 
       const rowId = hashids.decode(recordId)[0];
 
       if (rowId == null) {
-        return new Response(null, { status: 404 });
+        return new Response('Why are you here???', { status: 404 });
       }
 
       const result = await env.DB.prepare(
@@ -38,7 +38,7 @@ export default {
       ).bind([rowId]).first();
 
       if (result == null) {
-        return new Response(null, { status: 404 });
+        return new Response('Why are you here????', { status: 404 });
       }
 
       return new Response(JSON.stringify(result), {
@@ -57,24 +57,28 @@ export default {
         return new Response(null, { status: 400 });
       }
 
-      // Only if the value is not exists, insert it into the database and return the recordId that is exists or the new inserted one
-      const query = await env.DB.prepare(
-        "SELECT id FROM mapping_records WHERE value = ?"
-      ).bind(value).first();
-      if (query) {
-        const recordId = hashids.encode(query.id as number);
-        return new Response(JSON.stringify({ recordId }), {
-          headers: {
-            "content-type": "application/json",
-          },
-        });
+      let rowId: number
+
+      const updateResult = await env.DB.prepare(
+        "UPDATE mapping_records SET createdAt = strftime('%s','now') WHERE value = ? RETURNING id"
+      ).bind([value]).first();
+
+      if (updateResult != null) {
+        rowId = updateResult.id as number;
+      }
+      else {
+        const insertResult = await env.DB.prepare(
+          "INSERT INTO mapping_records (value) VALUES (?) RETURNING id"
+        ).bind([value]).first();
+
+        if (insertResult == null) {
+          return new Response(null, { status: 500 });
+        }
+
+        rowId = insertResult.id as number;
       }
 
-      const inserted = await env.DB.prepare(
-        "INSERT INTO mapping_records (value) VALUES (?)"
-      ).bind(value).run();
-
-      const recordId = hashids.encode(inserted.meta.last_row_id);
+      const recordId = hashids.encode(rowId);
 
       return new Response(JSON.stringify({ recordId }), {
         headers: {
@@ -83,7 +87,7 @@ export default {
       });
     }
 
-    return new Response(null, { status: 404 });
+    return new Response('Why are you here??', { status: 404 });
   },
 
   async scheduled(_, env) {
