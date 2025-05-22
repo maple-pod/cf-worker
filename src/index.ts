@@ -24,12 +24,14 @@ export default {
       const recordId = matched?.[1];
 
       if (recordId == null) {
+        console.log('recordId is null', request.url);
         return new Response('Why are you here?', { status: 404 });
       }
 
       const rowId = hashids.decode(recordId)[0];
 
       if (rowId == null) {
+        console.log('rowId is null', recordId);
         return new Response('Why are you here???', { status: 404 });
       }
 
@@ -38,6 +40,7 @@ export default {
       ).bind([Number(rowId)]).first();
 
       if (result == null) {
+        console.log('result is null', rowId);
         return new Response('Why are you here????', { status: 404 });
       }
 
