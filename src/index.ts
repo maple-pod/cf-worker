@@ -100,14 +100,14 @@ export default {
   },
 
   async scheduled(_, env) {
-    const sevenDaysAgo = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7;
+    const oneHourAgo = Math.floor(Date.now() / 1000) - 60 * 60;
     const stmt = env.DB.prepare(
-      "DELETE FROM my_table WHERE createdAt < ?"
-    ).bind([sevenDaysAgo]);
+      "DELETE FROM mapping_records WHERE createdAt < ?"
+    ).bind([oneHourAgo]);
 
     try {
       await stmt.run();
-      console.log("Old records deleted");
+      console.log("Records older than one hour deleted");
     } catch (err) {
       console.error("Error deleting old records:", err);
     }
