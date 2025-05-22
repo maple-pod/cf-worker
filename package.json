@@ -26,9 +26,10 @@
     "cf-typegen": "wrangler types",
     "check": "tsc && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --env=dev",
     "predeploy": "wrangler d1 migrations apply DB --remote",
-    "seedLocalD1": "wrangler d1 migrations apply DB --local"
+    "seedLocalD1": "wrangler d1 migrations apply DB --local",
+    "setupLocalD1": "wrangler d1 execute DB --local --file=./setup.sql"
   },
   "dependencies": {
     "hashids": "^2.3.0"

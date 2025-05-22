@@ -1,0 +1,36 @@
+{
+  "compatibility_date": "2025-04-01",
+  "main": "src/index.ts",
+  "name": "cf-worker",
+  "upload_source_maps": true,
+  "env": {
+    "dev": {
+      "vars": {
+        "MAGIC_HEADER_KEY": "maple-pod-magic-header",
+        "MAGIC_HEADER_VALUE": "maple-pod-magic-value",
+        "ENCODING_SALT": "maple-pod-salt",
+        "CORS_ORIGIN": "http://localhost:5173"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_id": "2cd0d869-11ea-49ff-a356-209bdf5c8308",
+          "database_name": "broad-recipe-9927-d1"
+        }
+      ]
+    }
+  },
+  "triggers": {
+    "crons": ["0 0 * * *"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "2cd0d869-11ea-49ff-a356-209bdf5c8308",
+      "database_name": "broad-recipe-9927-d1"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
