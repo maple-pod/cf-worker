@@ -1,0 +1,16 @@
+{
+  "compatibility_date": "2025-04-01",
+  "main": "src/index.ts",
+  "name": "cf-worker",
+  "upload_source_maps": true,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "2cd0d869-11ea-49ff-a356-209bdf5c8308",
+      "database_name": "broad-recipe-9927-d1"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
