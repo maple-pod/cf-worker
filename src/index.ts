@@ -5,20 +5,23 @@ const hashids = new Hashids(MAGIC_STRING, 8);
 
 export default {
   async fetch(request, env) {
-    if (request.headers.get("maple-pod-magic-string") !== MAGIC_STRING) {
-      return new Response(null, { status: 403 });
+
+    // Handle CORS preflight request
+    const headers = new Headers();
+    headers.set(
+      "Access-Control-Allow-Origin",
+      "https://maple-pod-worker.deviltea.me"
+    );
+    headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    headers.set("Access-Control-Allow-Headers", "Content-Type, maple-pod-magic-string");
+    headers.set("content-type", "application/json");
+
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers });
     }
 
-    // Handle CORS preflight request, only allowed 'maple-pod.deviltea.me
-    if (request.method === "OPTIONS") {
-      const headers = new Headers();
-      headers.set(
-        "Access-Control-Allow-Origin",
-        "https://maple-pod.deviltea.me"
-      );
-      headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-      headers.set("Access-Control-Allow-Headers", "Content-Type");
-      return new Response(null, { status: 204, headers });
+    if (request.headers.get("maple-pod-magic-string") !== MAGIC_STRING) {
+      return new Response(null, { status: 403 });
     }
 
     // Handle "GET /api/records/:recordId" request
@@ -47,9 +50,7 @@ export default {
       }
 
       return new Response(JSON.stringify(result), {
-        headers: {
-          "content-type": "application/json",
-        },
+        headers,
       });
     }
 
@@ -89,9 +90,8 @@ export default {
       const recordId = hashids.encode(rowId);
 
       return new Response(JSON.stringify({ recordId }), {
-        headers: {
-          "content-type": "application/json",
-        },
+        headers,
+        status: 201,
       });
     }
 
