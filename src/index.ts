@@ -1,11 +1,7 @@
 import Hashids from "hashids";
 
-
-
 export default {
   async fetch(request, env) {
-    console.log(env)
-
     const headers = new Headers();
     headers.set(
       "Access-Control-Allow-Origin",
@@ -100,14 +96,14 @@ export default {
   },
 
   async scheduled(_, env) {
-    const oneHourAgo = Math.floor(Date.now() / 1000) - 60 * 60;
+    const threeDaysAgo = Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 3;
     const stmt = env.DB.prepare(
       "DELETE FROM mapping_records WHERE createdAt < ?"
-    ).bind([oneHourAgo]);
+    ).bind(threeDaysAgo);
 
     try {
       await stmt.run();
-      console.log("Records older than one hour deleted");
+      console.log("Records older than three days deleted");
     } catch (err) {
       console.error("Error deleting old records:", err);
     }
