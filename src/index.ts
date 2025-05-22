@@ -35,7 +35,7 @@ export default {
 
       const result = await env.DB.prepare(
         "SELECT value FROM mapping_records WHERE id = ?"
-      ).bind([rowId]).first();
+      ).bind([Number(rowId)]).first();
 
       if (result == null) {
         return new Response('Why are you here????', { status: 404 });
