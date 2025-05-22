@@ -21,24 +21,31 @@ export default {
     // Handle "GET /api/records/:recordId" request
     if (request.method === "GET") {
       const matched = request.url.match(/\/api\/records\/([a-zA-Z0-9]+)$/)
-      if (matched?.[1] != null) {
-        const recordId = matched[1];
-        const rowId = hashids.decode(recordId)[0];
+      const recordId = matched?.[1];
 
-        if (rowId == null) {
-          return new Response(null, { status: 404 });
-        }
-
-        const stmt = env.DB.prepare("SELECT value FROM mapping_records WHERE id = ?");
-        const result = await stmt.bind([rowId]).first();
-        if (result) {
-          return new Response(JSON.stringify(result), {
-            headers: {
-              "content-type": "application/json",
-            },
-          });
-        }
+      if (recordId == null) {
+        return new Response(null, { status: 404 });
       }
+
+      const rowId = hashids.decode(recordId)[0];
+
+      if (rowId == null) {
+        return new Response(null, { status: 404 });
+      }
+
+      const result = await env.DB.prepare(
+        "SELECT value FROM mapping_records WHERE id = ?"
+      ).bind([rowId]).first();
+
+      if (result == null) {
+        return new Response(null, { status: 404 });
+      }
+
+      return new Response(JSON.stringify(result), {
+        headers: {
+          "content-type": "application/json",
+        },
+      });
     }
 
     // Handle "POST /api/records" request
